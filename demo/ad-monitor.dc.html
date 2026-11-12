@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ad set monitor · dc-lite demo</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&amp;family=IBM+Plex+Mono:wght@500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#07070c}
+button{font:inherit;color:inherit;border:none;background:none;padding:0;cursor:pointer}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.live{animation:pulse 1.6s ease-in-out infinite}
+@keyframes rise{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
+.row{animation:rise .4s ease-out both}
+.btn{height:34px;padding:0 14px;border-radius:9px;font-size:13px;font-weight:700;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05)}
+.btn:hover{background:rgba(255,255,255,.12)}
+.btn:active{transform:scale(.97)}
+@media (prefers-reduced-motion: reduce){.live,.row{animation:none}}
+</style>
+</helmet>
+<div style="width: 402px; min-height: 640px; box-sizing: border-box; padding: 24px 20px; color: #f2f0f5; font-family: Archivo, sans-serif;">
+  <div style="display: flex; align-items: center; gap: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: rgba(242,240,245,.6);">
+    <span class="live" style="width: 8px; height: 8px; border-radius: 50%; background: #3ddc97;"></span>Live · target CPA {{ target }}
+  </div>
+  <div style="margin-top: 14px; font-size: 13px; color: rgba(242,240,245,.7);">Spend today</div>
+  <div style="font-size: 44px; font-weight: 800; letter-spacing: -.03em; font-variant-numeric: tabular-nums;">$<span ref="{{ spendRef }}">0</span></div>
+  <div style="display: flex; gap: 8px; margin-top: 4px; font-size: 13px; color: rgba(242,240,245,.7);">
+    <span>{{ activeCount }} active</span><span>·</span><span>{{ killedCount }} killed</span><span>·</span><span>budget ${{ budget }}/day</span>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+    <sc-for list="{{ sets }}" as="s" hint-placeholder-count="4">
+      <div class="row" style="padding: 14px; border-radius: 14px; border: 1px solid {{ s.border }}; background: {{ s.bg }}; opacity: {{ s.opacity }};">
+        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+          <span style="font-weight: 700;">{{ s.name }}</span>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: {{ s.cpaColor }};">CPA ${{ s.cpa }}</span>
+        </div>
+        <div style="font-size: 12.5px; color: rgba(242,240,245,.65); margin-top: 4px;">{{ s.events }} purchases · ${{ s.daily }}/day · {{ s.verdict }}</div>
+        <sc-if value="{{ s.active }}" hint-placeholder-val="{{ true }}">
+          <div style="display: flex; gap: 8px; margin-top: 10px;">
+            <button class="btn" type="button" onClick="{{ s.kill }}">Kill</button>
+            <button class="btn" type="button" onClick="{{ s.scale }}">Scale +20%</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ s.killed }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top: 10px; font-size: 12.5px; color: #ff8fa0;">Stopped. Budget moved to the best ad set.</div>
+        </sc-if>
+      </div>
+    </sc-for>
+  </div>
+  <button class="btn" type="button" onClick="{{ reset }}" style="margin-top: 16px;">Reset</button>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"target":{"editor":"int","default":30},"$preview":{"width":402,"height":640}}'>
+const START = [
+  { name: "Broad · US · video A", cpa: 24, events: 41, daily: 300 },
+  { name: "Broad · US · static B", cpa: 29, events: 22, daily: 200 },
+  { name: "Lookalike 1% · UGC C", cpa: 47, events: 6, daily: 150 },
+  { name: "Interest stack · D", cpa: 61, events: 3, daily: 100 }
+];
+
+class Component extends DCLogic {
+  state = { sets: START.map((s) => ({ ...s, killed: false })) };
+  spendRef = (el) => { this.spendEl = el; };
+
+  componentDidMount() {
+    // The spend counter is written straight to the DOM through a ref, 60 times a second.
+    // dc-lite keeps that text intact when the board re-renders after a click.
+    let spend = 0;
+    const tick = () => {
+      const perSec = this.state.sets.filter((s) => !s.killed).reduce((a, s) => a + s.daily, 0) / 600;
+      spend += perSec / 60;
+      if (this.spendEl) this.spendEl.textContent = spend.toFixed(2);
+      this.raf = requestAnimationFrame(tick);
+    };
+    this.raf = requestAnimationFrame(tick);
+  }
+  componentWillUnmount() { cancelAnimationFrame(this.raf); }
+
+  kill(i) {
+    this.setState((st) => {
+      const sets = st.sets.map((s) => ({ ...s }));
+      const freed = sets[i].daily;
+      sets[i].killed = true; sets[i].daily = 0;
+      const best = sets.filter((s) => !s.killed).sort((a, b) => a.cpa - b.cpa)[0];
+      if (best) best.daily += freed;
+      return { sets };
+    });
+  }
+  scale(i) {
+    this.setState((st) => ({ sets: st.sets.map((s, j) => (j === i ? { ...s, daily: Math.round(s.daily * 1.2) } : s)) }));
+  }
+
+  renderVals() {
+    const target = this.props.target ?? 30;
+    const sets = this.state.sets.map((s, i) => {
+      const bad = s.cpa > target * 1.5, good = s.cpa <= target;
+      return {
+        ...s,
+        active: !s.killed,
+        verdict: s.killed ? "killed" : good ? "scale candidate" : bad ? "kill candidate" : "watch",
+        cpaColor: good ? "#9ff3cb" : bad ? "#ff8fa0" : "#ffd27a",
+        border: good && !s.killed ? "rgba(159,243,203,.35)" : "rgba(255,255,255,.1)",
+        bg: s.killed ? "rgba(255,255,255,.02)" : "rgba(255,255,255,.04)",
+        opacity: s.killed ? 0.55 : 1,
+        kill: () => this.kill(i),
+        scale: () => this.scale(i)
+      };
+    });
+    return {
+      target: "$" + target,
+      sets,
+      activeCount: sets.filter((s) => s.active).length,
+      killedCount: sets.filter((s) => s.killed).length,
+      budget: sets.reduce((a, s) => a + s.daily, 0),
+      spendRef: this.spendRef,
+      reset: () => this.setState({ sets: START.map((s) => ({ ...s, killed: false })) })
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>dc-lite: run interactive design boards as standalone HTML</title>
+<meta name="description" content="dc-lite is a 10 KB open-source renderer that runs interactive HTML design boards ({{ holes }}, sc-for, sc-if, DCLogic components) on any static host, with animations and click logic intact. MIT.">
+<link rel="canonical" href="https://ua5er.github.io/dc-lite/">
+<meta property="og:title" content="dc-lite: run interactive design boards as standalone HTML">
+<meta property="og:description" content="A 10 KB MIT renderer for HTML design boards. No editor, no login, no build step.">
+<meta property="og:url" content="https://ua5er.github.io/dc-lite/">
+<meta name="theme-color" content="#07070c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&family=Instrument+Serif:ital@1&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"dc-lite","codeRepository":"https://github.com/ua5er/dc-lite","license":"https://opensource.org/licenses/MIT","programmingLanguage":"JavaScript","description":"A small renderer that runs interactive HTML design boards as standalone pages.","author":{"@type":"Person","name":"Vlad Yasinski","url":"https://www.roimobi.com","sameAs":["https://github.com/ua5er","https://www.linkedin.com/in/vlad-yasinski-ua5er/"]}}
+</script>
+<style>
+:root{--bg:#07070c;--bg2:#0e0e17;--line:rgba(255,255,255,.1);--line2:rgba(255,255,255,.18);--tx:#f2f0f5;--tx2:rgba(242,240,245,.72);--tx3:rgba(242,240,245,.5)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:400 16px/1.6 Archivo,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.wrap{max-width:1120px;margin:0 auto;padding:0 16px}
+@media(min-width:720px){.wrap{padding:0 32px}}
+.mono{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--tx3)}
+.serif{font-family:"Instrument Serif",serif;font-style:italic;font-weight:400}
+header{border-bottom:1px solid var(--line)}
+header .wrap{display:flex;align-items:center;height:60px;gap:18px}
+header b{font-weight:800}
+header nav{margin-left:auto;display:flex;gap:18px;font-size:14px;color:var(--tx2)}
+header nav a{text-decoration:none}
+.hero{display:grid;gap:40px;padding:56px 0 64px;align-items:center}
+@media(min-width:920px){.hero{grid-template-columns:1.15fr .85fr}}
+h1{font-size:clamp(38px,5.6vw,70px);line-height:1;letter-spacing:-.035em;font-weight:900;margin:12px 0 18px}
+.lede{color:var(--tx2);font-size:18px;max-width:56ch;margin:0 0 26px}
+.btns{display:flex;flex-wrap:wrap;gap:12px}
+.btn{display:inline-flex;align-items:center;height:48px;padding:0 20px;border-radius:999px;font-weight:700;text-decoration:none;border:1px solid var(--line2);background:rgba(255,255,255,.04)}
+.btn:hover{background:rgba(255,255,255,.1)}
+.btn.pri{background:linear-gradient(100deg,#5d5bd7,#b9456b);border:0}
+.facts{display:flex;flex-wrap:wrap;gap:26px;margin-top:30px;color:var(--tx2);font-size:14px}
+.facts b{display:block;color:var(--tx);font-size:24px;font-weight:800}
+.device{justify-self:center;width:min(100%,402px);border-radius:30px;border:1px solid var(--line2);overflow:hidden;background:#07070c;box-shadow:0 40px 80px -40px rgba(93,91,215,.55)}
+.device iframe{display:block;width:100%;height:690px;border:0}
+.cap{color:var(--tx3);font-size:13px;text-align:center;margin-top:10px}
+section{padding:56px 0;border-top:1px solid var(--line)}
+h2{font-size:clamp(28px,3.4vw,44px);letter-spacing:-.03em;font-weight:900;margin:8px 0 18px;line-height:1.05}
+.cols{display:grid;gap:18px}
+@media(min-width:900px){.cols{grid-template-columns:1fr 1fr}}
+pre{margin:0;background:var(--bg2);border:1px solid var(--line);border-radius:16px;padding:18px;overflow:auto;font:500 13px/1.6 "IBM Plex Mono",monospace;color:#d9d8ff}
+.k{color:#ff9cb5}.s{color:#9ff3cb}.c{color:var(--tx3)}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.card{padding:20px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.025)}
+.card b{display:block;margin-bottom:6px}
+.card p{margin:0;color:var(--tx2);font-size:14.5px}
+.card code{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:#c9c8ff}
+footer{border-top:1px solid var(--line);padding:26px 0 40px;color:var(--tx3);font-size:13.5px}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 24px}
+</style>
+</head>
+<body>
+<header><div class="wrap"><b>dc-lite</b><nav><a href="#how">How it works</a><a href="#syntax">Syntax</a><a href="https://github.com/ua5er/dc-lite">GitHub</a></nav></div></header>
+<main>
+<div class="wrap hero">
+  <div>
+    <div class="mono">Open source · MIT · 3.4 KB gzipped</div>
+    <h1>Run design boards as <span class="serif">plain HTML</span></h1>
+    <p class="lede">dc-lite renders interactive design boards written with <code>{{&#8203; holes }}</code>, <code>&lt;sc-for&gt;</code>, <code>&lt;sc-if&gt;</code> and a <code>DCLogic</code> component class, the format Claude Design boards use. Your prototype runs on GitHub Pages, Netlify or any static host, with animations, timers and click logic intact. No editor, no login, no build step.</p>
+    <div class="btns">
+      <a class="btn pri" href="https://github.com/ua5er/dc-lite">Get it on GitHub</a>
+      <a class="btn" href="https://ua5er.github.io/user-acquisition-skills/#paywalls">See 19 boards in production</a>
+    </div>
+    <div class="facts"><div><b>260</b>lines of runtime</div><div><b>0</b>build tools</div><div><b>1</b>command to convert</div></div>
+  </div>
+  <div>
+    <div class="device"><iframe src="demo/ad-monitor.html" title="dc-lite demo: ad set monitor" loading="lazy"></iframe></div>
+    <div class="cap">Live board. Click Kill or Scale: the list re-renders, the spend counter keeps ticking.</div>
+  </div>
+</div>
+
+<section id="how"><div class="wrap">
+  <div class="mono">How it works</div>
+  <h2>One board file in, one <span class="serif">page</span> out</h2>
+  <div class="cols">
+<pre><span class="c"># convert a board, images named by asset id go in ./assets</span>
+node tools/convert.mjs Board.dc.html --out dist --assets ./assets
+cp src/dc-lite.js dist/
+npx serve dist</pre>
+<pre><span class="k">class</span> Component <span class="k">extends</span> DCLogic {
+  state = { count: <span class="s">0</span> };
+  renderVals() {
+    <span class="k">return</span> {
+      count: <span class="k">this</span>.state.count,
+      wave: () =&gt; <span class="k">this</span>.setState(s =&gt; ({ count: s.count + <span class="s">1</span> }))
+    };
+  }
+}</pre>
+  </div>
+  <div class="grid" style="margin-top:22px">
+    <div class="card"><b>Patches, not repaints</b><p>Each render patches the live DOM with morphdom and skips any subtree whose markup did not change, so CSS keyframes never restart.</p></div>
+    <div class="card"><b>Refs keep their text</b><p>Counters written through <code>ref</code> at 60 fps survive a re-render, the same as in React.</p></div>
+    <div class="card"><b>Events that stick</b><p>One capturing listener per event type on the root, so handlers outlive patches and media events like <code>onPlaying</code> still fire.</p></div>
+    <div class="card"><b>Familiar lifecycle</b><p><code>setState</code> with batching, <code>componentDidMount</code>, <code>componentDidUpdate</code>, <code>componentWillUnmount</code>, <code>destroy()</code>.</p></div>
+  </div>
+</div></section>
+
+<section id="syntax"><div class="wrap">
+  <div class="mono">Supported syntax</div>
+  <h2>What a board can <span class="serif">use</span></h2>
+  <div class="grid">
+    <div class="card"><b><code>{{&#8203; a.b }}</code></b><p>Dotted lookups into <code>renderVals()</code> in text and attributes. False and null render empty.</p></div>
+    <div class="card"><b><code>&lt;sc-for list as&gt;</code></b><p>Repeat children per item, with <code>itemIndex</code> available.</p></div>
+    <div class="card"><b><code>&lt;sc-if value&gt;</code></b><p>Render children when the value is truthy.</p></div>
+    <div class="card"><b><code>onClick="{{&#8203; fn }}"</code></b><p>Any <code>onX</code> handler, delegated from the root.</p></div>
+    <div class="card"><b><code>ref="{{&#8203; fn }}"</code></b><p>Callback and object refs, plus a <code>React.createRef</code> shim.</p></div>
+    <div class="card"><b><code>data-props</code></b><p>Declared defaults become <code>this.props</code>, overridable from <code>DCLite.mount()</code>.</p></div>
+  </div>
+  <p style="color:var(--tx2);margin-top:22px;max-width:80ch">Not supported yet: nested components through <code>&lt;dc-import&gt;</code> or <code>&lt;x-import&gt;</code>. dc-lite is an independent project, not made or endorsed by Anthropic. Claude is a trademark of Anthropic.</p>
+</div></section>
+</main>
+<footer><div class="wrap">
+  <span>dc-lite · MIT · <a href="https://github.com/ua5er/dc-lite">github.com/ua5er/dc-lite</a></span>
+  <span>Built by <a href="https://www.roimobi.com">Vlad Yasinski</a> for live paywall and onboarding prototypes · <a href="https://github.com/ua5er/user-acquisition-skills">user-acquisition-skills</a></span>
+</div></footer>
+</body>
+</html>

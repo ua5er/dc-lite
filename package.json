@@ -1,0 +1,15 @@
+{
+  "name": "dc-lite",
+  "version": "0.1.0",
+  "description": "Run interactive HTML design boards ({{ holes }}, sc-for, sc-if, DCLogic components) as standalone pages on any static host.",
+  "main": "src/dc-lite.js",
+  "bin": { "dc-lite-convert": "tools/convert.mjs" },
+  "files": ["src", "tools", "README.md", "LICENSE"],
+  "keywords": ["design", "prototype", "html", "renderer", "morphdom", "claude-design", "paywall", "onboarding"],
+  "author": "Vlad Yasinski (https://www.roimobi.com)",
+  "license": "MIT",
+  "homepage": "https://ua5er.github.io/dc-lite/",
+  "repository": { "type": "git", "url": "https://github.com/ua5er/dc-lite.git" },
+  "peerDependencies": { "morphdom": "^2.7.4" },
+  "engines": { "node": ">=18" }
+}
