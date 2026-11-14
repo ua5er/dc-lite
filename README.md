@@ -92,10 +92,14 @@ The [demo](https://ua5er.github.io/dc-lite/) shows both: the spend counter ticks
 
 dc-lite is an independent open-source project. It is not made, endorsed or supported by Anthropic. Claude is a trademark of Anthropic, used here only to say which board format dc-lite reads.
 
+## Privacy
+
+The hosted demo at ua5er.github.io counts anonymous page views and contact clicks with PostHog (EU), without cookies or personal data. It honours Do Not Track and Global Privacy Control. Copies you host yourself send nothing.
+
 ## Licence and credits
 
 MIT, see [LICENSE](LICENSE). morphdom is MIT, copyright Patrick Steele-Idem, loaded from jsDelivr or vendored in `demo/`.
 
 ## Author
 
-Written by [Vlad Yasinski](https://www.roimobi.com), AI growth consultant for app and subscription businesses. I build paid acquisition systems and the funnels behind them. More open source: [user-acquisition-skills](https://github.com/ua5er/user-acquisition-skills), agent skills for paid UA, Meta Ads, paywalls and onboarding. [LinkedIn](https://www.linkedin.com/in/vlad-yasinski-ua5er/) · [Telegram](https://t.me/ua5er)
+Written by [Vlad Yasinski](https://www.roimobi.com/?utm_source=github&utm_medium=readme&utm_campaign=dc-lite), AI growth consultant for app and subscription businesses. I build paid acquisition systems and the funnels behind them. More open source: [user-acquisition-skills](https://github.com/ua5er/user-acquisition-skills), agent skills for paid UA, Meta Ads, paywalls and onboarding. [LinkedIn](https://www.linkedin.com/in/vlad-yasinski-ua5er/) · [Telegram](https://www.roimobi.com/tg?src=github-dc-lite)
