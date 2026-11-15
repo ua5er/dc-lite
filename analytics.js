@@ -6,7 +6,7 @@
   'use strict';
   var HOST = 'ua5er.github.io';
   var SITE = 'dc-lite-demo';
-  var KEY = 'phc_CG97e9YEXGXENgp3za52XwctotC7ffY5W42dTeK62UUw'; // public project key
+  var KEY = 'phc_rVKuVvWahWzKTV8JRQnJBCgKZZyUejHQJjnaLoEkjBAJ'; // public project key
   var ENDPOINT = 'https://eu.i.posthog.com/i/v0/e/';
   var nav = navigator;
   if (location.hostname !== HOST) return;
